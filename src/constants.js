@@ -7,6 +7,4 @@ export const CATEGORIES = [
 
 export const CAT = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
-export const STORAGE_KEY = "vacation-tracker-destinations";
-
 export const emptyForm = { name: "", category: "activity", notes: "", priority: 2 };

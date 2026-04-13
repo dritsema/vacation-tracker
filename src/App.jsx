@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { CATEGORIES, CAT, STORAGE_KEY, emptyForm } from "./constants";
+import { CATEGORIES, CAT, emptyForm } from "./constants";
+import { supabase } from "./supabase";
 import ActivityCard from "./components/ActivityCard";
 import ActivityModal from "./components/ActivityModal";
 import Modal from "./components/Modal";
@@ -13,70 +14,87 @@ export default function App() {
   const [form, setForm] = useState(emptyForm);
   const [filterCat, setFilterCat] = useState("all");
   const [editActivity, setEditActivity] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const d = JSON.parse(stored);
-        setDestinations(d);
-        if (d.length) setActiveDest(d[0].id);
-      }
-    } catch {}
+    async function load() {
+      const [{ data: dests }, { data: acts }] = await Promise.all([
+        supabase.from("destinations").select("*").order("id"),
+        supabase.from("activities").select("*").order("id"),
+      ]);
+      const combined = (dests ?? []).map(d => ({
+        ...d,
+        activities: (acts ?? []).filter(a => a.destination_id === d.id),
+      }));
+      setDestinations(combined);
+      if (combined.length) setActiveDest(combined[0].id);
+      setLoading(false);
+    }
+    load();
   }, []);
 
-  const save = (d) => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch {}
-  };
-
-  const addDestination = () => {
+  const addDestination = async () => {
     if (!newDest.trim()) return;
-    const d = { id: Date.now(), name: newDest.trim(), activities: [] };
+    const id = Date.now();
+    await supabase.from("destinations").insert({ id, name: newDest.trim() });
+    const d = { id, name: newDest.trim(), activities: [] };
     const next = [...destinations, d];
     setDestinations(next);
     setActiveDest(d.id);
     setNewDest("");
     setShowAddDest(false);
-    save(next);
   };
 
-  const deleteDestination = (id) => {
+  const deleteDestination = async (id) => {
+    await supabase.from("destinations").delete().eq("id", id);
     const next = destinations.filter(d => d.id !== id);
     setDestinations(next);
     if (activeDest === id) setActiveDest(next[0]?.id ?? null);
-    save(next);
   };
 
-  const addActivity = () => {
+  const addActivity = async () => {
     if (!form.name.trim()) return;
+    const id = Date.now();
+    await supabase.from("activities").insert({
+      id,
+      destination_id: activeDest,
+      name: form.name.trim(),
+      category: form.category,
+      notes: form.notes,
+      priority: form.priority,
+    });
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
-      return { ...d, activities: [...d.activities, { id: Date.now(), ...form, name: form.name.trim() }] };
+      return { ...d, activities: [...d.activities, { id, ...form, name: form.name.trim() }] };
     });
     setDestinations(next);
     setShowAddActivity(false);
     setForm(emptyForm);
-    save(next);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editActivity.name.trim()) return;
+    await supabase.from("activities").update({
+      name: editActivity.name.trim(),
+      category: editActivity.category,
+      notes: editActivity.notes,
+      priority: editActivity.priority,
+    }).eq("id", editActivity.id);
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
       return { ...d, activities: d.activities.map(a => a.id === editActivity.id ? editActivity : a) };
     });
     setDestinations(next);
     setEditActivity(null);
-    save(next);
   };
 
-  const deleteActivity = (actId) => {
+  const deleteActivity = async (actId) => {
+    await supabase.from("activities").delete().eq("id", actId);
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
       return { ...d, activities: d.activities.filter(a => a.id !== actId) };
     });
     setDestinations(next);
-    save(next);
   };
 
   const dest = destinations.find(d => d.id === activeDest);
@@ -87,6 +105,10 @@ export default function App() {
     acc[c.id] = filtered.filter(a => a.category === c.id);
     return acc;
   }, {});
+
+  if (loading) {
+    return <p style={{ padding: "2rem", color: "#aaa" }}>Loading...</p>;
+  }
 
   return (
     <>
