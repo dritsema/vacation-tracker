@@ -5,6 +5,7 @@ body {
   background: #f5f5f3;
   color: #1a1a1a;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
@@ -148,7 +149,9 @@ button.danger:hover { background: #fcebeb; }
 .main {
   flex: 1;
   padding: 1rem 1.25rem;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
 }
 
 .main-header {
@@ -328,7 +331,6 @@ button.danger:hover { background: #fcebeb; }
     gap: 6px;
     padding: 0.5rem 0.75rem 0.75rem;
     scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   .dest-list::-webkit-scrollbar { display: none; }
@@ -363,17 +365,7 @@ button.danger:hover { background: #fcebeb; }
   .main-header h2 { font-size: 15px; }
   .main-header button { font-size: 12px; padding: 6px 10px; }
 
-  /* Filters: horizontal scroll, no wrap */
-  .filters {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-bottom: 16px;
-    padding-bottom: 2px;
-  }
-
-  .filters::-webkit-scrollbar { display: none; }
-  .filter-btn { flex-shrink: 0; }
+  .filters { margin-bottom: 16px; }
 
   /* Larger touch targets on card actions */
   .activity-card { padding: 10px 12px; }
