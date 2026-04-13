@@ -116,15 +116,6 @@ export default function App() {
 
   return (
     <>
-      <div className="rotate-prompt">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="2" />
-          <path d="M8 22h8" />
-          <path d="M17 8l3 3-3 3" />
-          <path d="M7 8l-3 3 3 3" />
-        </svg>
-        <p>Rotate your device for the best experience</p>
-      </div>
       <h1 style={{ marginBottom: "1.25rem" }}>Vacation Tracker</h1>
       <div className="app">
         {/* Sidebar */}
@@ -133,16 +124,18 @@ export default function App() {
             <span>Destinations</span>
             <button onClick={() => setShowAddDest(true)} title="Add destination">+</button>
           </div>
-          {destinations.length === 0 && (
-            <p style={{ padding: "0 1rem", fontSize: 13, color: "#aaa" }}>No destinations yet</p>
-          )}
-          {destinations.map(d => (
-            <div key={d.id} className={`dest-item${activeDest === d.id ? " active" : ""}`}
-              onClick={() => { setActiveDest(d.id); setFilterCat("all"); }}>
-              <span>{d.name}</span>
-              <button onClick={e => { e.stopPropagation(); deleteDestination(d.id); }} title="Remove">✕</button>
-            </div>
-          ))}
+          <div className="dest-list">
+            {destinations.length === 0 && (
+              <p style={{ fontSize: 13, color: "#aaa" }}>No destinations yet</p>
+            )}
+            {destinations.map(d => (
+              <div key={d.id} className={`dest-item${activeDest === d.id ? " active" : ""}`}
+                onClick={() => { setActiveDest(d.id); setFilterCat("all"); }}>
+                <span>{d.name}</span>
+                <button onClick={e => { e.stopPropagation(); deleteDestination(d.id); }} title="Remove">✕</button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Main */}
