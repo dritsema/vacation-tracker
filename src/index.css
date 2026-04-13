@@ -314,9 +314,8 @@ button.danger:hover { background: #fcebeb; }
     padding: 16px 0;
   }
 
-  h1 { font-size: 18px; padding: 0 12px; }
+  h1 { font-size: 18px; padding: 0 16px; }
 
-  /* Stack sidebar above main */
   .app {
     flex-direction: column;
     min-height: auto;
@@ -325,49 +324,13 @@ button.danger:hover { background: #fcebeb; }
     border-right: none;
   }
 
-  /* Sidebar becomes a horizontal strip */
   .sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 0.5px solid #e0e0dc;
-    padding: 0.75rem 0 0;
   }
 
-  .dest-list {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 6px;
-    padding: 0.5rem 0.75rem 0.75rem;
-    scrollbar-width: none;
-  }
-
-  .dest-list::-webkit-scrollbar { display: none; }
-
-  /* Destination chips */
-  .dest-item {
-    border-left: none;
-    border-radius: 20px;
-    border: 0.5px solid #e0e0dc;
-    background: #f5f5f3;
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 5px 10px 5px 12px;
-    gap: 6px;
-  }
-
-  .dest-item.active {
-    background: #1a1a1a;
-    border-color: #1a1a1a;
-    border-left-color: #1a1a1a;
-  }
-
-  .dest-item.active span { color: #fff; }
-
-  .dest-item button { color: #999; }
-  .dest-item.active button { color: #777; }
-
-  /* Main content */
-  .main { padding: 0.875rem; }
+  .main { padding: 1rem; }
 
   .main-header { margin-bottom: 12px; }
   .main-header h2 { font-size: 15px; }
@@ -375,10 +338,8 @@ button.danger:hover { background: #fcebeb; }
 
   .filters { margin-bottom: 16px; }
 
-  /* Larger touch targets on card actions */
   .activity-card { padding: 10px 12px; }
   .activity-card .actions button { padding: 7px 12px; }
 
-  /* Modal: full width */
   .modal { width: 100%; }
 }
