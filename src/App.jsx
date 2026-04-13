@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { CATEGORIES, CAT, emptyForm } from "./constants";
 import { supabase } from "./supabase";
+import { getDestinationEmoji } from "./destinationEmoji";
 import ActivityCard from "./components/ActivityCard";
 import ActivityModal from "./components/ActivityModal";
 import Modal from "./components/Modal";
@@ -131,7 +132,7 @@ export default function App() {
             {destinations.map(d => (
               <div key={d.id} className={`dest-item${activeDest === d.id ? " active" : ""}`}
                 onClick={() => { setActiveDest(d.id); setFilterCat("all"); }}>
-                <span>{d.name}</span>
+                <span>{d.name} {getDestinationEmoji(d.name)}</span>
                 <button onClick={e => { e.stopPropagation(); deleteDestination(d.id); }} title="Remove">✕</button>
               </div>
             ))}
@@ -148,7 +149,7 @@ export default function App() {
           ) : (
             <>
               <div className="main-header">
-                <h2>{dest.name}</h2>
+                <h2>{dest.name} {getDestinationEmoji(dest.name)}</h2>
                 <button className="primary" onClick={() => { setShowAddActivity(true); setForm(emptyForm); }}>
                   + Add activity
                 </button>
