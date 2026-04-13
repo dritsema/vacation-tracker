@@ -19,8 +19,8 @@ export default function App() {
   useEffect(() => {
     async function load() {
       const [{ data: dests }, { data: acts }] = await Promise.all([
-        supabase.from("destinations").select("*").order("id"),
-        supabase.from("activities").select("*").order("id"),
+        supabase.from("destinations").select("*").is("deleted_at", null).order("id"),
+        supabase.from("activities").select("*").is("deleted_at", null).order("id"),
       ]);
       const combined = (dests ?? []).map(d => ({
         ...d,
@@ -46,7 +46,11 @@ export default function App() {
   };
 
   const deleteDestination = async (id) => {
-    await supabase.from("destinations").delete().eq("id", id);
+    const deletedAt = new Date().toISOString();
+    await Promise.all([
+      supabase.from("destinations").update({ deleted_at: deletedAt }).eq("id", id),
+      supabase.from("activities").update({ deleted_at: deletedAt }).eq("destination_id", id),
+    ]);
     const next = destinations.filter(d => d.id !== id);
     setDestinations(next);
     if (activeDest === id) setActiveDest(next[0]?.id ?? null);
@@ -89,7 +93,7 @@ export default function App() {
   };
 
   const deleteActivity = async (actId) => {
-    await supabase.from("activities").delete().eq("id", actId);
+    await supabase.from("activities").update({ deleted_at: new Date().toISOString() }).eq("id", actId);
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
       return { ...d, activities: d.activities.filter(a => a.id !== actId) };
