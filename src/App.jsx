@@ -57,6 +57,33 @@ export default function App() {
     if (activeDest === id) setActiveDest(next[0]?.id ?? null);
   };
 
+  const enrichActivity = async (activityId, activityName, category, destinationName) => {
+    try {
+      const { data } = await supabase.functions.invoke("enrich-activity", {
+        body: { activityName, category, destinationName },
+      });
+      if (!data) return;
+      const { emoji, highlights, maps_query } = data;
+      const address = maps_query ?? undefined;
+      await supabase.from("activities").update({
+        emoji: emoji ?? null,
+        highlights: highlights?.length ? highlights : null,
+        ...(address !== undefined ? { address } : {}),
+      }).eq("id", activityId);
+      setDestinations(prev => prev.map(d => ({
+        ...d,
+        activities: d.activities.map(a => a.id !== activityId ? a : {
+          ...a,
+          emoji: emoji ?? a.emoji,
+          highlights: highlights?.length ? highlights : a.highlights,
+          ...(address !== undefined && !a.address ? { address } : {}),
+        }),
+      })));
+    } catch {
+      // enrichment is best-effort; silently ignore errors
+    }
+  };
+
   const addActivity = async () => {
     if (!form.name.trim()) return;
     const id = Date.now();
@@ -77,6 +104,7 @@ export default function App() {
     setDestinations(next);
     setShowAddActivity(false);
     setForm(emptyForm);
+    enrichActivity(id, form.name.trim(), form.category, dest?.name ?? "");
   };
 
   const saveEdit = async () => {
@@ -95,6 +123,7 @@ export default function App() {
     });
     setDestinations(next);
     setEditActivity(null);
+    enrichActivity(editActivity.id, editActivity.name.trim(), editActivity.category, dest?.name ?? "");
   };
 
   const deleteActivity = async (actId) => {

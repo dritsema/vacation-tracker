@@ -377,33 +377,6 @@ button.danger:hover { background: #fcebeb; }
   margin-top: 4px;
 }
 
-.highlight-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 8px;
-}
-
-.highlight-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  background: #f5f5f3;
-  border: 0.5px solid #ccc;
-  border-radius: 20px;
-  padding: 2px 8px 2px 10px;
-}
-
-.highlight-tag button {
-  border: none;
-  background: none;
-  padding: 0;
-  font-size: 14px;
-  color: #999;
-  line-height: 1;
-  cursor: pointer;
-}
 
 /* ─── Responsive: tablet (≤ 768px) ───────────────────── */
 

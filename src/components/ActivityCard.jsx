@@ -14,7 +14,7 @@ export default function ActivityCard({ a, onEdit, onDelete }) {
         <span className="card-stars">{stars}</span>
       </div>
 
-      <div className="card-name">{a.name}</div>
+      <div className="card-name">{a.emoji ? `${a.emoji} ${a.name}` : a.name}</div>
 
       {a.address && (
         <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="card-address">
