@@ -57,18 +57,17 @@ export default function App() {
     if (activeDest === id) setActiveDest(next[0]?.id ?? null);
   };
 
-  const enrichActivity = async (activityId, activityName, category, destinationName) => {
+  const enrichActivity = async (activityId, activityName, category, destinationName, activityAddress) => {
     try {
       const { data } = await supabase.functions.invoke("enrich-activity", {
         body: { activityName, category, destinationName },
       });
       if (!data) return;
-      const { emoji, highlights, maps_query } = data;
-      const address = maps_query ?? undefined;
+      const { emoji, highlights, address } = data;
       await supabase.from("activities").update({
         emoji: emoji ?? null,
         highlights: highlights?.length ? highlights : null,
-        ...(address !== undefined ? { address } : {}),
+        ...(!activityAddress && address ? { address } : {}),
       }).eq("id", activityId);
       setDestinations(prev => prev.map(d => ({
         ...d,
@@ -76,7 +75,7 @@ export default function App() {
           ...a,
           emoji: emoji ?? a.emoji,
           highlights: highlights?.length ? highlights : a.highlights,
-          ...(address !== undefined && !a.address ? { address } : {}),
+          ...(!activityAddress && address ? { address } : {}),
         }),
       })));
     } catch {
@@ -104,7 +103,7 @@ export default function App() {
     setDestinations(next);
     setShowAddActivity(false);
     setForm(emptyForm);
-    enrichActivity(id, form.name.trim(), form.category, dest?.name ?? "");
+    enrichActivity(id, form.name.trim(), form.category, dest?.name ?? "", form.address || null);
   };
 
   const saveEdit = async () => {
@@ -123,7 +122,7 @@ export default function App() {
     });
     setDestinations(next);
     setEditActivity(null);
-    enrichActivity(editActivity.id, editActivity.name.trim(), editActivity.category, dest?.name ?? "");
+    enrichActivity(editActivity.id, editActivity.name.trim(), editActivity.category, dest?.name ?? "", editActivity.address || null);
   };
 
   const deleteActivity = async (actId) => {

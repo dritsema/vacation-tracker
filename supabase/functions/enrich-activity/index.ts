@@ -26,7 +26,7 @@ serve(async (req) => {
 Required fields:
 - "emoji": one emoji that best represents this activity
 - "highlights": array of exactly 3 short tags (2-4 words each, e.g. "Outdoor seating", "Cash only", "Reservation needed")
-- "maps_query": Google Maps search string to locate this place (e.g. "Cowboy Club Sedona AZ"). If this is not a specific venue or location (e.g. "Swimming" or "Relaxing at the hotel"), set maps_query to null.
+- "address": the real street address of this place (e.g. "671 AZ-89A, Sedona, AZ 86336"). If this is not a specific venue with a fixed address (e.g. "Swimming", "Hiking", or "Relaxing at the hotel"), set address to null.
 
 Activity name: ${activityName}
 Category: ${category}
@@ -47,15 +47,26 @@ Destination: ${destinationName}`;
     });
 
     const data = await response.json();
-    const enrichment = JSON.parse(data.content[0].text);
+
+    if (!response.ok || data.error) {
+      console.error("Anthropic API error:", JSON.stringify(data));
+      return new Response(
+        JSON.stringify({ error: "Anthropic API error", detail: data.error }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const raw = data.content[0].text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+    const enrichment = JSON.parse(raw);
 
     return new Response(
       JSON.stringify(enrichment),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch {
+  } catch (err) {
+    console.error("Enrichment error:", err);
     return new Response(
-      JSON.stringify({ error: "Enrichment failed" }),
+      JSON.stringify({ error: "Enrichment failed", detail: String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
