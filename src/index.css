@@ -70,6 +70,44 @@ button.danger {
 
 button.danger:hover { background: #fcebeb; }
 
+/* ─── Password gate ──────────────────────────────────── */
+
+.password-gate {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.password-gate h1 {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.password-gate form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 260px;
+}
+
+.password-gate input {
+  width: 100%;
+  text-align: center;
+}
+
+.password-gate button {
+  width: 100%;
+}
+
+.gate-error {
+  font-size: 13px;
+  color: #a32d2d;
+}
+
 /* ─── Layout ─────────────────────────────────────────── */
 
 .app {
