@@ -67,6 +67,8 @@ export default function App() {
       category: form.category,
       notes: form.notes,
       priority: form.priority,
+      address: form.address || null,
+      highlights: form.highlights?.length ? form.highlights : null,
     });
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
@@ -84,6 +86,8 @@ export default function App() {
       category: editActivity.category,
       notes: editActivity.notes,
       priority: editActivity.priority,
+      address: editActivity.address || null,
+      highlights: editActivity.highlights?.length ? editActivity.highlights : null,
     }).eq("id", editActivity.id);
     const next = destinations.map(d => {
       if (d.id !== activeDest) return d;
@@ -181,8 +185,8 @@ export default function App() {
                     </div>
                     <div className="activity-list">
                       {grouped[cat.id].map(a => (
-                        <ActivityCard key={a.id} a={a} cat={cat}
-                          onEdit={() => setEditActivity({ ...a })}
+                        <ActivityCard key={a.id} a={a}
+                          onEdit={() => setEditActivity({ ...a, highlights: a.highlights ?? [] })}
                           onDelete={() => deleteActivity(a.id)} />
                       ))}
                     </div>
@@ -192,8 +196,8 @@ export default function App() {
                 <div className="activity-list">
                   {filtered.length === 0 && <p style={{ color: "#aaa", fontSize: 14 }}>No activities in this category yet.</p>}
                   {filtered.map(a => (
-                    <ActivityCard key={a.id} a={a} cat={CAT[a.category]}
-                      onEdit={() => setEditActivity({ ...a })}
+                    <ActivityCard key={a.id} a={a}
+                      onEdit={() => setEditActivity({ ...a, highlights: a.highlights ?? [] })}
                       onDelete={() => deleteActivity(a.id)} />
                   ))}
                 </div>

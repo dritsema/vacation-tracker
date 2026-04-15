@@ -7,4 +7,4 @@ export const CATEGORIES = [
 
 export const CAT = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
-export const emptyForm = { name: "", category: "activity", notes: "", priority: 2 };
+export const emptyForm = { name: "", category: "activity", notes: "", priority: 2, address: "", highlights: [] };
