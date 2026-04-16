@@ -25,17 +25,23 @@ serve(async (req) => {
       ? `Already on the list (do not suggest these): ${existingNames.join(", ")}`
       : "";
 
-    const prompt = `You are a vacation activity advisor. Based on the destination and preferences, suggest exactly 3 specific activities.
+    const prompt = `You are a knowledgeable local vacation advisor for ${destinationName}. Suggest exactly 3 specific venues or activities that directly satisfy ALL of the user's stated requirements.
+
+Rules you must follow:
+- If the user mentions a meal type (lunch, breakfast, dinner), ALL 3 suggestions must use that category — never suggest a hike or activity when food was requested
+- If the user mentions a specific landmark, view, or location, ALL 3 suggestions must be relevant to it
+- Suggest real, specific named venues — not generic descriptions
+- The "notes" field must explain exactly how this suggestion satisfies the stated preferences — this is how you verify your own answer
 
 Respond with a JSON array only — no markdown, no explanation.
 
 Each item must have:
-- "name": specific venue or activity name (e.g. "Coffee Pot Restaurant", "Cathedral Rock Trail")
+- "name": specific venue or activity name
 - "category": one of "breakfast", "lunch", "activity", "dinner"
-- "notes": 1-2 sentences explaining why this is a great choice for the stated preferences
+- "notes": 1-2 sentences explaining specifically how this matches what was asked for
 
 Destination: ${destinationName}
-Preferences: ${context}
+User request: ${context}
 ${existing}`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {

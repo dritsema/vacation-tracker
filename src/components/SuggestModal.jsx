@@ -5,6 +5,7 @@ import { CATEGORIES, CAT } from "../constants";
 
 export default function SuggestModal({ destinationName, existingNames, onSelect, onClose }) {
   const [context, setContext] = useState("");
+  const [category, setCategory] = useState("");
   const [suggestions, setSuggestions] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -13,9 +14,12 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
     if (!context.trim()) return;
     setLoading(true);
     setError(null);
+    const fullContext = category
+      ? `${context.trim()} [Category: ${category} only]`
+      : context.trim();
     try {
       const { data, error: fnError } = await supabase.functions.invoke("suggest-activity", {
-        body: { destinationName, context: context.trim(), existingNames },
+        body: { destinationName, context: fullContext, existingNames },
       });
       if (fnError) {
         let body;
@@ -40,12 +44,16 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
     <Modal onClose={onClose} title="✨ Suggest an activity">
       {!suggestions ? (
         <div className="modal-form">
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option value="">Any category</option>
+            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
           <textarea
             autoFocus
             value={context}
             onChange={e => setContext(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), getSuggestions())}
-            placeholder={`What are you looking for? (e.g. "romantic dinner with views" or "kid-friendly breakfast")`}
+            placeholder="What are you looking for? Be specific — mention views, landmarks, vibe, dietary needs, etc."
             rows={3}
             style={{ resize: "none" }}
           />
@@ -73,7 +81,7 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
             );
           })}
           <div className="modal-actions" style={{ marginTop: 8 }}>
-            <button onClick={() => { setSuggestions(null); setContext(""); }}>Try again</button>
+            <button onClick={() => { setSuggestions(null); setContext(""); setCategory(""); }}>Try again</button>
             <button onClick={onClose}>Cancel</button>
           </div>
         </div>
