@@ -19,10 +19,10 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
       });
       if (fnError) {
         let detail = fnError.message;
-        try { const body = await fnError.context?.json(); detail = body?.detail ?? body?.error ?? detail; } catch {}
+        try { const body = await fnError.context?.json(); detail = JSON.stringify(body); } catch {}
         throw new Error(detail);
       }
-      if (data?.error) throw new Error(data.detail ?? data.error);
+      if (data?.error) throw new Error(JSON.stringify(data));
       setSuggestions(data);
     } catch (err) {
       setError(`Error: ${err.message}`);
