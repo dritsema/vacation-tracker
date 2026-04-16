@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const { activityName, category, destinationName } = await req.json();
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const apiKey = Deno.env.get("GEMINI_API_KEY");
 
     if (!apiKey) {
       return new Response(
@@ -32,31 +32,32 @@ Activity name: ${activityName}
 Category: ${category}
 Destination: ${destinationName}`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 256,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 256 },
+        }),
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok || data.error) {
-      console.error("Anthropic API error:", JSON.stringify(data));
+      console.error("Gemini API error:", JSON.stringify(data));
       return new Response(
-        JSON.stringify({ error: "Anthropic API error", detail: data.error }),
+        JSON.stringify({ error: "Gemini API error", detail: data.error }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const raw = data.content[0].text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+    const raw = data.candidates[0].content.parts[0].text
+      .replace(/^```(?:json)?\n?/i, "")
+      .replace(/\n?```$/, "")
+      .trim();
     const enrichment = JSON.parse(raw);
 
     return new Response(
