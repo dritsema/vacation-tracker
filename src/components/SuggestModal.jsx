@@ -22,16 +22,16 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
         let body;
         try { body = await fnError.context?.json(); } catch {}
         if (body?.detail?.code === 429) throw new Error("rate_limit");
-        throw new Error(body?.error ?? fnError.message);
+        throw new Error(JSON.stringify(body ?? fnError.message));
       }
-      if (data?.error) throw new Error(data.error === "No results found. Try different search terms." ? "no_results" : data.error);
+      if (data?.error) throw new Error(data.error === "No results found. Try different search terms." ? "no_results" : JSON.stringify(data));
       setSuggestions(data);
     } catch (err) {
       const msg = err.message === "rate_limit"
         ? "Too many requests — wait a moment and try again."
         : err.message === "no_results"
         ? "No matching venues found. Try broadening your search."
-        : "Something went wrong. Try again.";
+        : `Error: ${err.message}`;
       setError(msg);
       console.error(err);
     } finally {
