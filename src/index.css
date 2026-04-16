@@ -71,12 +71,12 @@ button.danger {
 button.danger:hover { background: #fcebeb; }
 
 button.suggest {
-  background: #7c3aed;
+  background: #3d2b6e;
   color: #fff;
-  border-color: #7c3aed;
+  border-color: #3d2b6e;
 }
 
-button.suggest:hover { background: #6d28d9; }
+button.suggest:hover { background: #2f2056; }
 
 /* ─── Password gate ──────────────────────────────────── */
 
