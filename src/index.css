@@ -278,7 +278,6 @@ button.danger:hover { background: #fcebeb; }
   color: #1a73e8;
   text-decoration: none;
 }
-.card-address:hover { text-decoration: underline; }
 
 .card-highlights {
   display: flex;

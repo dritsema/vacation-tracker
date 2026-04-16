@@ -67,7 +67,7 @@ export default function App() {
       await supabase.from("activities").update({
         emoji: emoji ?? null,
         highlights: highlights?.length ? highlights : null,
-        ...(!activityAddress && address ? { address } : {}),
+        address: address ?? null,
       }).eq("id", activityId);
       setDestinations(prev => prev.map(d => ({
         ...d,
@@ -75,7 +75,7 @@ export default function App() {
           ...a,
           emoji: emoji ?? a.emoji,
           highlights: highlights?.length ? highlights : a.highlights,
-          ...(!activityAddress && address ? { address } : {}),
+          address: address ?? a.address,
         }),
       })));
     } catch {
