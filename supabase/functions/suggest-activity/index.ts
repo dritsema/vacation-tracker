@@ -43,7 +43,7 @@ serve(async (req) => {
 
       const fsqRes = await fetch(
         `https://api.foursquare.com/v3/places/search?${params}`,
-        { headers: { Authorization: `Bearer ${foursquareKey}` } }
+        { headers: { Authorization: foursquareKey } }
       );
       const fsqData = await fsqRes.json();
 
