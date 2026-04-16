@@ -63,11 +63,12 @@ export default function App() {
         body: { activityName, category, destinationName },
       });
       if (!data) return;
-      const { emoji, highlights, address } = data;
+      const { emoji, highlights, maps_query } = data;
+      const address = !activityAddress ? (maps_query ?? null) : activityAddress;
       await supabase.from("activities").update({
         emoji: emoji ?? null,
         highlights: highlights?.length ? highlights : null,
-        address: address ?? null,
+        address,
       }).eq("id", activityId);
       setDestinations(prev => prev.map(d => ({
         ...d,
@@ -75,7 +76,7 @@ export default function App() {
           ...a,
           emoji: emoji ?? a.emoji,
           highlights: highlights?.length ? highlights : a.highlights,
-          address: address ?? a.address,
+          address,
         }),
       })));
     } catch {

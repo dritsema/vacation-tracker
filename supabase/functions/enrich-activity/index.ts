@@ -26,7 +26,7 @@ serve(async (req) => {
 Required fields:
 - "emoji": one emoji that best represents this activity
 - "highlights": array of exactly 3 short tags (2-4 words each, e.g. "Outdoor seating", "Cash only", "Reservation needed")
-- "address": the real street address of this place (e.g. "671 AZ-89A, Sedona, AZ 86336"). If this is not a specific venue with a fixed address (e.g. "Swimming", "Hiking", or "Relaxing at the hotel"), set address to null.
+- "maps_query": a Google Maps search string to find this specific venue (e.g. "Mesa Grill Sedona AZ", "Coffee Pot Restaurant Sedona AZ"). If this is not a specific venue (e.g. "Swimming", "Hiking", or "Relaxing at the hotel"), set maps_query to null.
 
 Activity name: ${activityName}
 Category: ${category}

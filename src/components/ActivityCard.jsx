@@ -18,7 +18,7 @@ export default function ActivityCard({ a, onEdit, onDelete }) {
 
       {a.address && (
         <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="card-address">
-          📍 {a.address}
+          📍 Open in Maps
         </a>
       )}
 
