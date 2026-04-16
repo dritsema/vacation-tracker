@@ -18,14 +18,18 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
         body: { destinationName, context: context.trim(), existingNames },
       });
       if (fnError) {
-        let detail = fnError.message;
-        try { const body = await fnError.context?.json(); detail = JSON.stringify(body); } catch {}
-        throw new Error(detail);
+        let body;
+        try { body = await fnError.context?.json(); } catch {}
+        if (body?.detail?.code === 429) throw new Error("rate_limit");
+        throw new Error(body?.error ?? fnError.message);
       }
-      if (data?.error) throw new Error(JSON.stringify(data));
+      if (data?.error) throw new Error(data.error);
       setSuggestions(data);
     } catch (err) {
-      setError(`Error: ${err.message}`);
+      const msg = err.message === "rate_limit"
+        ? "Too many requests — wait a moment and try again."
+        : "Something went wrong. Try again.";
+      setError(msg);
       console.error(err);
     } finally {
       setLoading(false);
