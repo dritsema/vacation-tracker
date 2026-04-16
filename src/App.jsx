@@ -4,6 +4,7 @@ import { supabase } from "./supabase";
 import { getDestinationEmoji } from "./destinationEmoji";
 import ActivityCard from "./components/ActivityCard";
 import ActivityModal from "./components/ActivityModal";
+import SuggestModal from "./components/SuggestModal";
 import Modal from "./components/Modal";
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [form, setForm] = useState(emptyForm);
   const [filterCat, setFilterCat] = useState("all");
   const [editActivity, setEditActivity] = useState(null);
+  const [showSuggest, setShowSuggest] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -183,9 +185,12 @@ export default function App() {
             <>
               <div className="main-header">
                 <h2>{dest.name} {getDestinationEmoji(dest.name)}</h2>
-                <button className="primary" onClick={() => { setShowAddActivity(true); setForm(emptyForm); }}>
-                  + Add activity
-                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="suggest" onClick={() => setShowSuggest(true)}>✨ Suggest</button>
+                  <button className="primary" onClick={() => { setShowAddActivity(true); setForm(emptyForm); }}>
+                    + Add activity
+                  </button>
+                </div>
               </div>
 
               <div className="filters">
@@ -248,6 +253,19 @@ export default function App() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {showSuggest && (
+        <SuggestModal
+          destinationName={dest?.name ?? ""}
+          existingNames={(dest?.activities ?? []).map(a => a.name)}
+          onSelect={s => {
+            setShowSuggest(false);
+            setForm({ ...emptyForm, name: s.name, category: s.category, notes: s.notes ?? "" });
+            setShowAddActivity(true);
+          }}
+          onClose={() => setShowSuggest(false)}
+        />
       )}
 
       {showAddActivity && (

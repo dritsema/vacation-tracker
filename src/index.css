@@ -70,6 +70,14 @@ button.danger {
 
 button.danger:hover { background: #fcebeb; }
 
+button.suggest {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+}
+
+button.suggest:hover { background: #6d28d9; }
+
 /* ─── Password gate ──────────────────────────────────── */
 
 .password-gate {
@@ -376,6 +384,46 @@ button.danger:hover { background: #fcebeb; }
   margin-top: 4px;
 }
 
+
+/* ─── Suggest modal ──────────────────────────────────── */
+
+.suggest-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suggest-card {
+  border: 0.5px solid #e0e0dc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggest-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.suggest-use-btn {
+  font-size: 12px;
+  padding: 4px 12px;
+}
+
+.suggest-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.suggest-card-notes {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+}
 
 /* ─── Responsive: tablet (≤ 768px) ───────────────────── */
 
