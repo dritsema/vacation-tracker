@@ -17,10 +17,15 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
       const { data, error: fnError } = await supabase.functions.invoke("suggest-activity", {
         body: { destinationName, context: context.trim(), existingNames },
       });
-      if (fnError || data?.error) throw new Error(fnError?.message ?? data?.error);
+      if (fnError) {
+        let detail = fnError.message;
+        try { const body = await fnError.context?.json(); detail = body?.detail ?? body?.error ?? detail; } catch {}
+        throw new Error(detail);
+      }
+      if (data?.error) throw new Error(data.detail ?? data.error);
       setSuggestions(data);
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(`Error: ${err.message}`);
       console.error(err);
     } finally {
       setLoading(false);
