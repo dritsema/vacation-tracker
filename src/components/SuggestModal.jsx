@@ -14,12 +14,9 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
     if (!context.trim()) return;
     setLoading(true);
     setError(null);
-    const fullContext = category
-      ? `${context.trim()} [Category: ${category} only]`
-      : context.trim();
     try {
       const { data, error: fnError } = await supabase.functions.invoke("suggest-activity", {
-        body: { destinationName, context: fullContext, existingNames },
+        body: { destinationName, context: context.trim(), existingNames, category: category || null },
       });
       if (fnError) {
         let body;
@@ -27,11 +24,13 @@ export default function SuggestModal({ destinationName, existingNames, onSelect,
         if (body?.detail?.code === 429) throw new Error("rate_limit");
         throw new Error(body?.error ?? fnError.message);
       }
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) throw new Error(data.error === "No results found. Try different search terms." ? "no_results" : data.error);
       setSuggestions(data);
     } catch (err) {
       const msg = err.message === "rate_limit"
         ? "Too many requests — wait a moment and try again."
+        : err.message === "no_results"
+        ? "No matching venues found. Try broadening your search."
         : "Something went wrong. Try again.";
       setError(msg);
       console.error(err);
