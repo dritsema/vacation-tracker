@@ -22,11 +22,27 @@ serve(async (req) => {
       );
     }
 
-    const isFoodCategory = category === "breakfast" || category === "lunch" || category === "dinner";
     const existingSet = new Set((existingNames ?? []).map((n: string) => n.toLowerCase()));
     const existing = existingNames?.length
       ? `Already on the list (do not suggest these): ${existingNames.join(", ")}`
       : "";
+
+    // Infer food intent from explicit category or keywords in context
+    const lowerContext = context.toLowerCase();
+    const BREAKFAST_WORDS = ["breakfast", "brunch"];
+    const LUNCH_WORDS = ["lunch"];
+    const DINNER_WORDS = ["dinner", "supper"];
+    const FOOD_WORDS = ["food", "meal", "eat", "eating", "restaurant", "cafe", "dining"];
+
+    const inferredCategory =
+      BREAKFAST_WORDS.some(w => lowerContext.includes(w)) ? "breakfast" :
+      LUNCH_WORDS.some(w => lowerContext.includes(w)) ? "lunch" :
+      DINNER_WORDS.some(w => lowerContext.includes(w)) ? "dinner" :
+      FOOD_WORDS.some(w => lowerContext.includes(w)) ? "food" :
+      null;
+
+    const effectiveCategory = category || inferredCategory;
+    const isFoodCategory = ["breakfast", "lunch", "dinner", "food"].includes(effectiveCategory ?? "");
 
     let prompt: string;
 
@@ -74,11 +90,15 @@ serve(async (req) => {
         return `${i + 1}. ${name}${rating ? ` — ${rating}` : ""}${addr ? ` — ${addr}` : ""}`;
       }).join("\n");
 
+      const mealHint = effectiveCategory && effectiveCategory !== "food"
+        ? `All results must use the category: "${effectiveCategory}".`
+        : `Infer the most appropriate category from the venue type and the user's request.`;
+
       prompt = `You are matching real verified Google Places venues to a user's vacation request. Do not invent or add any information not present in the venue data below.
 
 For each venue, respond with:
 - "name": exact venue name as listed
-- "category": one of "breakfast", "lunch", "activity", "dinner" — infer from the venue type and the user's request
+- "category": one of "breakfast", "lunch", "activity", "dinner" — ${mealHint}
 - "notes": 1-2 sentences explaining how this venue matches the user's request, based only on what can be inferred from the data provided
 
 Respond with a JSON array only — no markdown, no explanation.
@@ -92,8 +112,8 @@ ${venueList}`;
     } else {
       // ── Activity category or no category: Haiku only ───────────────────
 
-      const categoryRule = category
-        ? `All 3 suggestions must use the category: "${category}".`
+      const categoryRule = effectiveCategory
+        ? `All 3 suggestions must use the category: "${effectiveCategory}".`
         : "Choose the most appropriate category for each suggestion.";
 
       prompt = `You are a knowledgeable local vacation advisor for ${destinationName}. Suggest exactly 3 specific venues or activities that directly satisfy ALL of the user's stated requirements.
