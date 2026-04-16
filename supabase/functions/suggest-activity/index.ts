@@ -13,7 +13,7 @@ serve(async (req) => {
   try {
     const { destinationName, context, existingNames, category } = await req.json();
     const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
-    const foursquareKey = Deno.env.get("FOURSQUARE_API_KEY");
+    const googleKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
 
     if (!anthropicKey) {
       return new Response(
@@ -30,62 +30,63 @@ serve(async (req) => {
 
     let prompt: string;
 
-    if (isFoodCategory && foursquareKey) {
-      // ── Food categories: Foursquare → Haiku notes ──────────────────────
+    if (isFoodCategory && googleKey) {
+      // ── Food categories: Google Places → Haiku notes ───────────────────
 
-      const params = new URLSearchParams({
-        query: context,
-        near: destinationName,
-        limit: "6",
-        sort: "RELEVANCE",
-        categories: "13000", // Foursquare food parent category
+      const placesRes = await fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": googleKey,
+          "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types",
+        },
+        body: JSON.stringify({
+          textQuery: `${context} ${destinationName}`,
+          maxResultCount: 6,
+        }),
       });
 
-      const fsqRes = await fetch(
-        `https://api.foursquare.com/v3/places/search?${params}`,
-        { headers: { Authorization: `Bearer ${foursquareKey}` } }
-      );
-      const fsqData = await fsqRes.json();
+      const placesData = await placesRes.json();
 
-      if (!fsqRes.ok) {
-        console.error("Foursquare error:", JSON.stringify(fsqData));
+      if (!placesRes.ok) {
+        console.error("Google Places error:", JSON.stringify(placesData));
         return new Response(
-          JSON.stringify({ error: "Foursquare API error", detail: fsqData }),
+          JSON.stringify({ error: "Google Places API error", detail: placesData.error }),
           { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const businesses = (fsqData.results ?? [])
-        .filter((b: any) => !existingSet.has(b.name.toLowerCase()))
+      const places = (placesData.places ?? [])
+        .filter((p: any) => !existingSet.has(p.displayName?.text?.toLowerCase()))
         .slice(0, 3);
 
-      if (businesses.length === 0) {
+      if (places.length === 0) {
         return new Response(
           JSON.stringify({ error: "No results found. Try different search terms." }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const venueList = businesses.map((b: any, i: number) => {
-        const cats = b.categories?.map((c: any) => c.name).join(", ") ?? "";
-        const addr = b.location?.formatted_address ?? "";
-        const rating = b.rating ? `${b.rating}/10` : "";
-        return `${i + 1}. ${b.name}${rating ? ` (${rating})` : ""}${cats ? ` — ${cats}` : ""}${addr ? ` — ${addr}` : ""}`;
+      const venueList = places.map((p: any, i: number) => {
+        const name = p.displayName?.text ?? "Unknown";
+        const addr = p.formattedAddress ?? "";
+        const rating = p.rating ? `${p.rating}/5 (${p.userRatingCount ?? 0} reviews)` : "";
+        return `${i + 1}. ${name}${rating ? ` — ${rating}` : ""}${addr ? ` — ${addr}` : ""}`;
       }).join("\n");
 
-      prompt = `You are matching real verified venues to a user's vacation request. Do not invent or add any information not present in the venue data below.
+      prompt = `You are matching real verified Google Places venues to a user's vacation request. Do not invent or add any information not present in the venue data below.
 
 For each venue, respond with:
 - "name": exact venue name as listed
-- "category": one of "breakfast", "lunch", "activity", "dinner" — infer from venue type and the user's request
-- "notes": 1-2 sentences explaining how this venue matches the user's request, based only on the data provided
+- "category": one of "breakfast", "lunch", "activity", "dinner" — infer from the venue type and the user's request
+- "notes": 1-2 sentences explaining how this venue matches the user's request, based only on what can be inferred from the data provided
 
 Respond with a JSON array only — no markdown, no explanation.
 
 User's request: ${context}
 Destination: ${destinationName}
 
-Verified venues from Foursquare:
+Verified venues from Google Places:
 ${venueList}`;
 
     } else {
