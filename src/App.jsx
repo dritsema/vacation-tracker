@@ -154,7 +154,7 @@ export default function App() {
     <>
       <h1 style={{ marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "10px" }}>
         <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <path d="M 4,28 L 4,4 L 28,4 L 28,16 L 12,16 L 12,10 L 22,10"
+          <path d="M 4,5 L 28,5 L 28,16 L 10,16 L 10,27 L 28,27"
             stroke="#3d2b6e" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter" />
         </svg>
         Meander
