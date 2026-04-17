@@ -152,7 +152,13 @@ export default function App() {
 
   return (
     <>
-      <h1 style={{ marginBottom: "1.25rem" }}>Meander</h1>
+      <h1 style={{ marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "10px" }}>
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M 4,28 L 4,4 L 28,4 L 28,16 L 12,16 L 12,10 L 22,10"
+            stroke="#3d2b6e" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter" />
+        </svg>
+        Meander
+      </h1>
       <div className="app">
         {/* Sidebar */}
         <div className="sidebar">
