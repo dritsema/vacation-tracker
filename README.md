@@ -1,19 +1,27 @@
-# Vacation Tracker
+# Meander
 
-A shared vacation planning app for organizing destinations and activities across devices and browsers. All data is stored in Supabase and is visible to anyone with the link — no login required.
+A shared AI-powered vacation planning app for organizing destinations and activities. Meander helps you discover real, verified venues and experiences using a combination of Google Places and Claude AI — then keeps everything organized across all your devices.
 
 ## Features
 
-- Add and remove destinations
-- Add activities to each destination with a category, notes, and priority
-- Filter activities by category (Breakfast, Lunch, Activity, Dinner)
-- Data is shared globally and syncs across all devices
-- Deleted items are soft-deleted and recoverable from the Supabase dashboard
+- **Destinations & activities** — add destinations and organize activities by category (Breakfast, Lunch, Activity, Dinner) with notes and priority
+- **AI enrichment** — every saved activity is automatically enriched with an emoji, highlight tags, and an "Open in Maps" link
+- **✨ Suggest** — AI-powered activity suggestions based on your preferences:
+  - Food categories (Breakfast, Lunch, Dinner) use **Google Places** for verified, real venues
+  - Food-related keywords (e.g. "lunch spot", "restaurant") are detected automatically and also route to Google Places
+  - Activity suggestions use **Claude Haiku** with confidence-focused prompting
+- **Category filters** — filter your activity list by category or view all grouped by type
+- **Cross-device sync** — all data is stored in Supabase and syncs across browsers and devices in real time
+- **Soft deletes** — deleted items are recoverable from the Supabase dashboard
+- **Password protected** — server-side password gate via Supabase Edge Function
+- **Mobile responsive** — fully usable on portrait mobile
 
 ## Tech Stack
 
 - **Frontend:** React + Vite
-- **Backend:** Supabase (PostgreSQL)
+- **Backend:** Supabase (PostgreSQL + Edge Functions)
+- **AI:** Claude Haiku (Anthropic) via Supabase Edge Functions
+- **Venue data:** Google Places API (New)
 - **Hosting:** Vercel
 
 ## Local Development
@@ -43,6 +51,24 @@ The app is deployed on Vercel. Set the following environment variables in **Verc
 
 Push to `main` to trigger a new deployment.
 
+## Supabase Edge Functions
+
+Three Edge Functions handle server-side logic. Deploy with the Supabase CLI:
+
+```bash
+supabase functions deploy verify-password
+supabase functions deploy enrich-activity
+supabase functions deploy suggest-activity
+```
+
+Set the following secrets in **Supabase → Project Settings → Edge Functions → Secrets**:
+
+| Secret | Purpose |
+|---|---|
+| `APP_PASSWORD` | Password gate |
+| `ANTHROPIC_API_KEY` | Claude Haiku for enrichment and activity suggestions |
+| `GOOGLE_PLACES_API_KEY` | Google Places API (New) for verified food venue suggestions |
+
 ## Database Schema
 
 Run the following SQL in the Supabase SQL editor to set up the tables:
@@ -61,6 +87,9 @@ create table activities (
   category text not null,
   notes text not null default '',
   priority int not null,
+  address text,
+  emoji text,
+  highlights text[],
   deleted_at timestamptz
 );
 ```

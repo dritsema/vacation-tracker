@@ -152,7 +152,7 @@ export default function App() {
 
   return (
     <>
-      <h1 style={{ marginBottom: "1.25rem" }}>Vacation Tracker</h1>
+      <h1 style={{ marginBottom: "1.25rem" }}>Meander</h1>
       <div className="app">
         {/* Sidebar */}
         <div className="sidebar">
